@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Search, Filter, Calendar, MapPin, Users, Clock, Star, X } from 'lucide-react';
+import { Search, Filter, SlidersHorizontal, RotateCcw, Calendar, MapPin, Users, Clock, Star, X, BookOpen, HeartPulse, GraduationCap, Leaf, Trophy, UsersRound, Wrench } from 'lucide-react';
 import { eventAPI } from '../utils/api';
 import EventFeedback from '../components/EventFeedback';
 import { useTheme } from '../contexts/ThemeContext';
+import { defaultEvents } from '../data/defaultContent';
+
+const eventCategories = ['All', 'Academic', 'Sports', 'Cultural', 'Technical', 'Workshop', 'Social'];
+const eventCategoryIcons = { All: SlidersHorizontal, Academic: BookOpen, Sports: Trophy, Cultural: HeartPulse, Technical: Wrench, Workshop: GraduationCap, Social: UsersRound };
 
 export default function Events() {
   const { isDark } = useTheme();
@@ -12,103 +16,71 @@ export default function Events() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const currentPageRef = useRef(1);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const categories = ['All', 'Academic', 'Sports', 'Cultural', 'Technical', 'Workshop', 'Social'];
-
-  // Demo events with BOTH image and galleryImage
-  const galleryDemoEvents = [
-    {
-      _id: 'gallery-1',
-      title: "Tech Symposium 2024",
-      category: "Technical",
-      description: "Students presenting innovative tech solutions and networking with industry experts.",
-      date: "2024-03-15",
-      time: "10:00 AM",
-      location: "Main Auditorium",
-      image: "https://images.pexels.com/photos/2608517/pexels-photo-2608517.jpeg?auto=compress&cs=tinysrgb&w=800",
-      galleryImage: "https://images.pexels.com/photos/2608517/pexels-photo-2608517.jpeg?auto=compress&cs=tinysrgb&w=800",
-      organizer: "Tech Club",
-      attendees: 120,
-      maxAttendees: 200,
-      averageRating: 4.5,
-      totalReviews: 23,
-      featured: true,
-      status: 'completed' // Add status for gallery filtering
-    },
-    {
-      _id: 'gallery-2',
-      title: "Cultural Festival",
-      category: "Cultural",
-      description: "Vibrant celebration of diverse cultures with music, dance, and traditional performances.",
-      date: "2024-04-20",
-      time: "6:00 PM",
-      location: "Campus Lawn",
-      image: "https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=800",
-      galleryImage: "https://images.pexels.com/photos/1190297/pexels-photo-1190297.jpeg?auto=compress&cs=tinysrgb&w=800",
-      organizer: "Cultural Committee",
-      attendees: 250,
-      maxAttendees: 300,
-      averageRating: 4.8,
-      totalReviews: 45,
-      featured: true,
-      status: 'completed' // Add status for gallery filtering
-    },
-    {
-      _id: 'gallery-3',
-      title: "Annual Sports Meet 2024",
-      category: "Sports",
-      description: "Inter-college sports competition featuring athletics, basketball, cricket and more.",
-      date: "2024-05-10",
-      time: "8:00 AM",
-      location: "College Sports Complex",
-      image: "https://images.pexels.com/photos/3076514/pexels-photo-3076514.jpeg?auto=compress&cs=tinysrgb&w=800",
-      galleryImage: "https://images.pexels.com/photos/3076514/pexels-photo-3076514.jpeg?auto=compress&cs=tinysrgb&w=800",
-      organizer: "Sports Committee",
-      attendees: 300,
-      maxAttendees: 350,
-      averageRating: 4.6,
-      totalReviews: 38,
-      featured: true,
-      status: 'completed'
-    },
-  ];
+  useEffect(() => {
+    if (!selectedEvent) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setSelectedEvent(null);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [selectedEvent]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const categoryParam = urlParams.get('category');
-    if (categoryParam && categories.includes(categoryParam)) {
+    if (categoryParam && eventCategories.includes(categoryParam)) {
       setSelectedCategory(categoryParam);
     }
   }, [location.search]);
 
-  useEffect(() => {
-    fetchEvents();
-  }, [selectedCategory, searchTerm]);
-
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async (append = false) => {
+    const nextPage = append ? currentPageRef.current + 1 : 1;
     try {
-      setLoading(true);
+      if (append) setLoadingMore(true);
+      else setLoading(true);
       setError(null);
       
       const params = {
         category: selectedCategory === 'All' ? undefined : selectedCategory,
         search: searchTerm || undefined,
+        page: nextPage,
+        limit: 24,
       };
       
       const response = await eventAPI.getAllEvents(params);
-      setEvents(response.data.events);
+      const apiEvents = response?.data?.events || [];
+      // Keep the catalogue useful before the first admin upload. Real events
+      // always take priority as soon as the API has any records.
+      setEvents((previous) => apiEvents.length > 0
+        ? (append ? [...previous, ...apiEvents] : apiEvents)
+        : (append ? previous : defaultEvents));
+      currentPageRef.current = nextPage;
+      setHasMore(nextPage < (response?.data?.totalPages || 1));
     } catch (err) {
       console.error('Error fetching events:', err);
-      setError('Failed to load events. Please try again later.');
+      // The default catalogue is also used when the API is unavailable, so a
+      // fresh install never opens to an empty events page.
+      if (!append) setEvents(defaultEvents);
+      setHasMore(false);
+      setError(null);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  };
+  }, [searchTerm, selectedCategory]);
 
-  const allEvents = [...events, ...galleryDemoEvents];
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
+  const allEvents = events;
 
   const filteredEvents = allEvents.filter(event => {
     const matchesSearch =
@@ -118,7 +90,14 @@ export default function Events() {
     return matchesSearch && matchesCategory;
   });
 
-  const featuredEvents = allEvents.filter(event => event.featured);
+  const featuredEvents = filteredEvents.filter(event => event.featured);
+  const regularEvents = filteredEvents.filter(event => !event.featured);
+  const hasActiveFilters = Boolean(searchTerm || selectedCategory !== 'All');
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('All');
+  };
 
   const renderStars = (rating) => {
     return (
@@ -138,11 +117,11 @@ export default function Events() {
   };
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'} pt-8 pb-16 transition-colors duration-200`}>
+    <div className={`events-page min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'} pt-8 pb-16 transition-colors duration-200`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="text-center mb-12">
+        <div className="events-page-header text-center mb-12">
           <h1 className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-4`}>
             Discover Events
           </h1>
@@ -152,38 +131,28 @@ export default function Events() {
         </div>
 
         {/* Search and Filter */}
-        <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6 mb-8`}>
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${isDark ? 'text-gray-400' : 'text-gray-400'}`} />
+        <div className={`events-toolbar ${isDark ? 'events-toolbar-dark' : ''} rounded-xl shadow-lg p-5 mb-8`}>
+          <div className="events-toolbar-top">
+            <div className="events-search-field">
+              <Search className="events-search-icon" aria-hidden="true" />
               <input
                 type="text"
-                placeholder="Search events..."
+                aria-label="Search events"
+                placeholder="Search by event, club, place or idea..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`w-full pl-10 pr-4 py-3 border ${
-                  isDark 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                    : 'bg-white border-gray-200 text-gray-900'
-                } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                className="events-search-input"
               />
+              {searchTerm && <button type="button" className="events-clear-search" onClick={() => setSearchTerm('')} aria-label="Clear search"><X size={16} /></button>}
             </div>
-            <div className="relative">
-              <Filter className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${isDark ? 'text-gray-400' : 'text-gray-400'}`} />
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className={`pl-10 pr-8 py-3 border ${
-                  isDark 
-                    ? 'bg-gray-700 border-gray-600 text-white' 
-                    : 'bg-white border-gray-200 text-gray-900'
-                } rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none min-w-40`}
-              >
-                {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
+            {hasActiveFilters && <button type="button" className="events-reset-button" onClick={clearFilters}><RotateCcw size={15} /> Reset</button>}
+          </div>
+          <div className="events-toolbar-bottom">
+            <div className="events-quick-filter-label"><Filter size={15} /> Filter by</div>
+            <div className="events-category-chips" role="group" aria-label="Filter events by category">
+              {eventCategories.map((category) => { const CategoryIcon = eventCategoryIcons[category]; return <button type="button" key={category} className={`events-category-chip ${selectedCategory === category ? 'is-active' : ''}`} onClick={() => setSelectedCategory(category)}><CategoryIcon size={17} />{category}</button>; })}
             </div>
+            <span className="events-result-summary">{filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'} found</span>
           </div>
         </div>
 
@@ -232,11 +201,20 @@ export default function Events() {
             <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-6`}>
               Featured Events
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 events-card-grid">
               {featuredEvents.map(event => (
                 <div
                   key={event._id}
                   onClick={() => setSelectedEvent(event)}
+                  onKeyDown={(keyboardEvent) => {
+                    if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+                      keyboardEvent.preventDefault();
+                      setSelectedEvent(event);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View details for ${event.title}`}
                   className={`${
                     isDark ? 'bg-gray-800' : 'bg-white'
                   } rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer`}
@@ -298,17 +276,15 @@ export default function Events() {
                     </div>
                     <div className="mt-4">
                       <button
+                        type="button"
+                        disabled={event.isDefault}
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (event._id.startsWith('gallery-')) {
-                            alert('This is a demo event from the gallery. Registration not available.');
-                          } else {
-                            navigate(`/register-now/${event._id}`);
-                          }
+                          if (!event.isDefault) navigate(`/register-now/${event._id}`);
                         }}
-                        className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+                        className={`w-full py-2 rounded-lg transition-colors duration-200 font-medium ${event.isDefault ? 'cursor-not-allowed bg-gray-200 text-gray-500' : 'bg-[#f1262d] text-white hover:bg-[#c91f2a]'}`}
                       >
-                        Register Now
+                        {event.isDefault ? 'Registration opens soon' : 'Register Now'}
                       </button>
                     </div>
                   </div>
@@ -319,16 +295,25 @@ export default function Events() {
         )}
 
         {/* All Events */}
-        {!loading && !error && filteredEvents.length > 0 && (
+        {!loading && !error && regularEvents.length > 0 && (
           <section>
             <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-6`}>
-              All Events ({filteredEvents.length})
+              All Events ({regularEvents.length})
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredEvents.map(event => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 events-card-grid">
+              {regularEvents.map(event => (
                 <div
                   key={event._id}
                   onClick={() => setSelectedEvent(event)}
+                  onKeyDown={(keyboardEvent) => {
+                    if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+                      keyboardEvent.preventDefault();
+                      setSelectedEvent(event);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View details for ${event.title}`}
                   className={`${
                     isDark ? 'bg-gray-800' : 'bg-white'
                   } rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer`}
@@ -374,6 +359,19 @@ export default function Events() {
                         {event.location}
                       </div>
                     </div>
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        disabled={event.isDefault}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!event.isDefault) navigate(`/register-now/${event._id}`);
+                        }}
+                        className={`w-full py-2 rounded-lg transition-colors duration-200 font-medium ${event.isDefault ? 'cursor-not-allowed bg-gray-200 text-gray-500' : 'bg-[#f1262d] text-white hover:bg-[#c91f2a]'}`}
+                      >
+                        {event.isDefault ? 'Registration opens soon' : 'Register Now'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -381,13 +379,23 @@ export default function Events() {
           </section>
         )}
 
+        {!loading && !error && hasMore && (
+          <div className="mt-10 text-center">
+            <button type="button" onClick={() => fetchEvents(true)} disabled={loadingMore} className="rounded-full border border-blue-200 px-6 py-3 font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60">
+              {loadingMore ? 'Loading more…' : 'Load more events'}
+            </button>
+          </div>
+        )}
+
         {/* Event Detail Modal */}
         {selectedEvent && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="event-detail-title">
             <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto`}>
               <div className="relative">
                 <img src={selectedEvent.image} alt={selectedEvent.title} className="w-full h-64 object-cover" />
                 <button
+                  type="button"
+                  aria-label="Close event details"
                   onClick={() => setSelectedEvent(null)}
                   className="absolute top-4 right-4 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70"
                 >
@@ -396,7 +404,7 @@ export default function Events() {
               </div>
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  <h2 id="event-detail-title" className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     {selectedEvent.title}
                   </h2>
                   <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
@@ -449,18 +457,18 @@ export default function Events() {
 
                 <div className="flex gap-3 mb-6">
                   <button
+                    type="button"
+                    disabled={selectedEvent.isDefault}
                     onClick={() => {
-                      if (selectedEvent._id.startsWith('gallery-')) {
-                        alert('This is a demo event from the gallery. Registration not available.');
-                      } else {
-                        navigate(`/register-now/${selectedEvent._id}`);
-                      }
+                      if (!selectedEvent.isDefault) navigate(`/register-now/${selectedEvent._id}`);
                     }}
-                    className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-semibold"
+                    className={`flex-1 py-3 rounded-lg transition-colors duration-200 font-semibold ${selectedEvent.isDefault ? 'cursor-not-allowed bg-gray-200 text-gray-500' : 'bg-[#f1262d] text-white hover:bg-[#c91f2a]'}`}
                   >
-                    Register Now
+                    {selectedEvent.isDefault ? 'Registration opens soon' : 'Register Now'}
                   </button>
                   <button
+                    type="button"
+                    aria-label="Close event details"
                     onClick={() => {
                       if (navigator.share) {
                         navigator.share({
@@ -484,9 +492,7 @@ export default function Events() {
                 </div>
                 
                 {/* Feedback Section */}
-                {!selectedEvent._id.startsWith('gallery-') && (
-                  <EventFeedback eventId={selectedEvent._id} eventTitle={selectedEvent.title} />
-                )}
+                <EventFeedback eventId={selectedEvent._id} eventTitle={selectedEvent.title} />
               </div>
             </div>
           </div>

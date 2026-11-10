@@ -1,124 +1,41 @@
 import React from 'react';
+import { ArrowUpRight, Instagram, Linkedin, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Calendar, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          
-          {/* Brand Section */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-2 rounded-lg">
-                <Calendar className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-xl font-bold">College Events</span>
-            </div>
-            <p className="text-gray-400 text-sm">
-              Your one-stop platform for discovering, organizing, and participating in college events.
-              Connect with peers and create memorable experiences.
-            </p>
-            <div className="flex space-x-4">
-              <Facebook className="h-5 w-5 text-gray-400 hover:text-blue-500 cursor-pointer transition-colors duration-200" />
-              <Twitter className="h-5 w-5 text-gray-400 hover:text-blue-400 cursor-pointer transition-colors duration-200" />
-              <Instagram className="h-5 w-5 text-gray-400 hover:text-pink-500 cursor-pointer transition-colors duration-200" />
-              <Linkedin className="h-5 w-5 text-gray-400 hover:text-blue-600 cursor-pointer transition-colors duration-200" />
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Quick Links</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/" className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/events" className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
-                  Events
-                </Link>
-              </li>
-              <li>
-                <Link to="/register" className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
-                  Register Event
-                </Link>
-              </li>
-              <li>
-                <Link to="/Gallary" className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
-                  Gallary
-                </Link>
-              </li>
-              <li>
-                <Link to="/FAQ" className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
-                  FAQ
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Event Categories */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Event Categories</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/events?category=Academic" className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
-                  Academic
-                </Link>
-              </li>
-              <li>
-                <Link to="/events?category=Sports" className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
-                  Sports
-                </Link>
-              </li>
-              <li>
-                <Link to="/events?category=Cultural" className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
-                  Cultural
-                </Link>
-              </li>
-              <li>
-                <Link to="/events?category=Technical" className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
-                  Technical
-                </Link>
-              </li>
-              <li>
-                <Link to="/events?category=Workshop" className="text-gray-400 hover:text-white transition-colors duration-200 text-sm">
-                  Workshops
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact Info */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Contact Info</h3>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Mail className="h-4 w-4 text-blue-500" />
-                <span className="text-gray-400 text-sm">events@college.edu</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Phone className="h-4 w-4 text-blue-500" />
-                <span className="text-gray-400 text-sm">+1 (555) 123-4567</span>
-              </div>
-              <div className="flex items-center space-x-3">
-                <MapPin className="h-4 w-4 text-blue-500" />
-                <span className="text-gray-400 text-sm">123 College Ave, Campus City</span>
-              </div>
-            </div>
-          </div>
+    <footer className="site-footer site-footer-dark">
+      <div className="site-container footer-main">
+        <div className="footer-brand">
+          <Link to="/" className="wordmark wordmark-footer"><span className="wordmark-mark">A</span><span>Ayojan</span></Link>
+          <p>College events, registrations, and campus participation - all in one place.</p>
         </div>
-
-        {/* Bottom Section */}
-        <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-          <p className="text-gray-400 text-sm">
-            © {new Date().getFullYear()} College Events. All rights reserved. Built with ❤️ for students.
-          </p>
+        <div className="footer-links">
+          <div>
+            <span className="footer-label">Explore</span>
+            <Link to="/events">All events</Link>
+            <Link to="/categories">Categories</Link>
+            <Link to="/gallery">Event gallery</Link>
+          </div>
+          <div>
+            <span className="footer-label">Your account</span>
+            <Link to="/my-registrations">My registrations</Link>
+            <Link to="/profile">My profile</Link>
+            <Link to="/faq">Help & FAQ</Link>
+          </div>
+          <div>
+            <span className="footer-label">Get in touch</span>
+            <Link to="/contact">Contact the college team <ArrowUpRight size={13} /></Link>
+            <a href="mailto:contact@ayojan.example">contact@ayojan.example <ArrowUpRight size={13} /></a>
+            <span className="social-links">
+              <a href="https://www.instagram.com" aria-label="Instagram"><Instagram size={17} /></a>
+              <a href="https://www.linkedin.com" aria-label="LinkedIn"><Linkedin size={17} /></a>
+              <a href="mailto:contact@ayojan.example" aria-label="Email"><Mail size={17} /></a>
+            </span>
+          </div>
         </div>
       </div>
+      <div className="site-container footer-bottom"><span>(c) {new Date().getFullYear()} Ayojan</span><span>For students, clubs, and college organizers.</span><span><Link to="/privacy">Privacy policy</Link> <span className="footer-terms-separator">-</span> <Link to="/terms">Terms</Link></span></div>
     </footer>
   );
 }

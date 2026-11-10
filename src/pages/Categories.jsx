@@ -1,91 +1,47 @@
-import React from "react";
-import { BookOpen, Trophy, Music, Cpu, Wrench } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useTheme } from "../contexts/ThemeContext";
+import React from 'react';
+import { ArrowUpRight, BookOpen, Cpu, Music2, Sparkles, Trophy, UsersRound, Wrench } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
+
+const categories = [
+  { name: 'Academic', eyebrow: 'Think deeper', description: 'Talks, seminars, paper presentations, debates, and the conversations that stay with you.', image: '/hero-workshop.png', icon: BookOpen, tone: 'sage' },
+  { name: 'Cultural', eyebrow: 'Make some noise', description: 'Music, theatre, dance, and campus traditions that turn an ordinary evening into a memory.', image: '/hero-cultural-night.png', icon: Music2, tone: 'coral' },
+  { name: 'Technical', eyebrow: 'Build what is next', description: 'Hackathons, coding contests, robotics, and project showcases for curious makers.', image: '/College-Event.jpg', icon: Cpu, tone: 'ink' },
+  { name: 'Sports', eyebrow: 'Get in the game', description: 'Tournaments, fitness challenges, and the good kind of competition across campus.', image: '/hero-club-fair.png', icon: Trophy, tone: 'blue' },
+  { name: 'Workshop', eyebrow: 'Learn by doing', description: 'Hands-on sessions where new skills become something you can actually take with you.', image: '/hero-workshop.png', icon: Wrench, tone: 'sand' },
+];
 
 export default function Categories() {
   const { isDark } = useTheme();
   const navigate = useNavigate();
-
-  const categories = [
-    {
-      name: "Academic",
-      description: "Seminars, paper presentations, and academic competitions.",
-      icon: <BookOpen className="h-10 w-10 text-blue-600" />,
-      color: isDark ? "from-blue-900 to-blue-800" : "from-blue-100 to-blue-200",
-    },
-    {
-      name: "Sports",
-      description: "Indoor & outdoor sports events, tournaments, and fitness challenges.",
-      icon: <Trophy className="h-10 w-10 text-green-600" />,
-      color: isDark ? "from-green-900 to-green-800" : "from-green-100 to-green-200",
-    },
-    {
-      name: "Cultural",
-      description: "Dance, music, drama, and cultural fests to showcase talents.",
-      icon: <Music className="h-10 w-10 text-pink-600" />,
-      color: isDark ? "from-pink-900 to-pink-800" : "from-pink-100 to-pink-200",
-    },
-    {
-      name: "Technical",
-      description: "Hackathons, coding contests, robotics, and project exhibitions.",
-      icon: <Cpu className="h-10 w-10 text-purple-600" />,
-      color: isDark ? "from-purple-900 to-purple-800" : "from-purple-100 to-purple-200",
-    },
-    {
-      name: "Workshop",
-      description: "Hands-on training sessions to learn new skills & technologies.",
-      icon: <Wrench className="h-10 w-10 text-orange-600" />,
-      color: isDark ? "from-orange-900 to-orange-800" : "from-orange-100 to-orange-200",
-    },
-  ];
-
-  const handleCategoryClick = (categoryName) => {
-    navigate(`/events?category=${categoryName}`);
-  };
+  const openCategory = (name) => navigate(`/events?category=${encodeURIComponent(name)}`);
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'} py-12 px-6 transition-colors duration-200`}>
-      <div className="max-w-7xl mx-auto text-center mb-12">
-        <h1 className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-800'} mb-4`}>
-          Event Categories
-        </h1>
-        <p className={`${isDark ? 'text-gray-300' : 'text-gray-600'} text-lg`}>
-          Explore various categories of events happening on campus. 
-          From academics to culture, there's something for everyone!
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {categories.map((category, index) => (
-          <div
-            key={index}
-            onClick={() => handleCategoryClick(category.name)}
-            className={`bg-gradient-to-r ${category.color} p-6 rounded-2xl shadow-lg hover:scale-105 transform transition duration-300 cursor-pointer`}
-          >
-            <div className="flex items-center justify-center mb-4">
-              <div className={`${isDark ? 'bg-gray-700' : 'bg-white'} p-4 rounded-full shadow-md`}>
-                {category.icon}
-              </div>
-            </div>
-            <h2 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-800'} mb-2`}>
-              {category.name}
-            </h2>
-            <p className={`${isDark ? 'text-gray-200' : 'text-gray-600'} mb-4`}>
-              {category.description}
-            </p>
-            <button
-              className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                isDark 
-                  ? 'bg-gray-700 text-white hover:bg-gray-600' 
-                  : 'bg-white text-gray-800 hover:bg-gray-100'
-              }`}
-            >
-              View Events
-            </button>
+    <div className={`categories-page ${isDark ? 'is-dark' : ''}`}>
+      <section className="categories-hero">
+        <div className="categories-shell categories-hero-grid">
+          <div className="categories-hero-copy">
+            <p className="categories-kicker"><Sparkles size={14} /> Explore campus life</p>
+            <h1>Find the kind of <em>energy</em> that feels like yours.</h1>
+            <p className="categories-hero-lede">Ayojan makes the busy campus feel easier to explore. Start with a category, follow your curiosity, and find your next good room.</p>
+            <div className="categories-stat-row"><span><strong>05</strong><small>ways to spend a day</small></span><span><strong>18+</strong><small>events this week</small></span><span><strong>01</strong><small>place to start</small></span></div>
           </div>
-        ))}
-      </div>
+          <div className="categories-hero-art">
+            <img src="/hero-cultural-night.png" alt="Students sharing a cultural evening on campus" />
+            <div className="categories-hero-overlay" />
+            <div className="categories-hero-note"><span className="categories-live-dot" /> Happening around you</div>
+            <div className="categories-hero-caption"><span>01 / 05</span><strong>There is always a seat for you.</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <main className="categories-content"><div className="categories-shell">
+        <div className="categories-section-heading"><div><p className="categories-kicker categories-kicker-dark"><span /> Choose your corner</p><h2>Different interests.<br /><em>One shared campus.</em></h2></div><p>Whether you want to learn, compete, create, or simply meet someone new, there is a starting point here.</p></div>
+        <div className="categories-grid">
+          {categories.map((category, index) => { const Icon = category.icon; return <button type="button" className={`category-card category-card-${category.tone} ${index === 0 ? 'category-card-featured' : ''}`} key={category.name} onClick={() => openCategory(category.name)} aria-label={`View ${category.name} events`}><img src={category.image} alt="" /><span className="category-card-shade" /><span className="category-card-number">0{index + 1}</span><span className="category-card-icon"><Icon size={20} /></span><span className="category-card-copy"><small>{category.eyebrow}</small><strong>{category.name}</strong><span>{category.description}</span><i>View events <ArrowUpRight size={15} /></i></span></button>; })}
+        </div>
+        <section className="categories-bottom-note"><div className="categories-bottom-icon"><UsersRound size={22} /></div><div><p className="categories-kicker categories-kicker-dark"><span /> Still deciding?</p><h3>Start with this week’s calendar.</h3><p>See what is actually happening next, then let the right category find you.</p></div><button type="button" className="categories-bottom-link" onClick={() => navigate('/events')}>Browse all events <ArrowUpRight size={17} /></button></section>
+      </div></main>
     </div>
   );
 }

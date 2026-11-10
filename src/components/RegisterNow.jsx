@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Users, Clock, CreditCard, User, Mail, Phone, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -36,6 +36,31 @@ export default function RegisterNow() {
     'Sciences', 'Medicine', 'Law', 'Education', 'Fine Arts', 'Other'
   ];
 
+  const fetchEventAndCheckRegistration = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      const eventResponse = await eventAPI.getEventById(eventId);
+      setEvent(eventResponse.data.event);
+
+      try {
+        const registrationResponse = await registrationAPI.checkRegistration(eventId);
+        if (registrationResponse.data.isRegistered) {
+          setAlreadyRegistered(true);
+          toast.info('You are already registered for this event');
+        }
+      } catch {
+        setAlreadyRegistered(false);
+      }
+    } catch (error) {
+      console.error('Error fetching event:', error);
+      toast.error('Event not found');
+      navigate('/events');
+    } finally {
+      setLoading(false);
+    }
+  }, [eventId, navigate]);
+
   useEffect(() => {
     if (!isAuthenticated) {
       toast.error('Please login to register for events');
@@ -44,7 +69,7 @@ export default function RegisterNow() {
     }
 
     fetchEventAndCheckRegistration();
-  }, [eventId, isAuthenticated]);
+  }, [eventId, isAuthenticated, navigate, fetchEventAndCheckRegistration]);
 
   useEffect(() => {
     if (user) {
@@ -60,31 +85,6 @@ export default function RegisterNow() {
       }));
     }
   }, [user]);
-
-  const fetchEventAndCheckRegistration = async () => {
-    try {
-      setLoading(true);
-      
-      const eventResponse = await eventAPI.getEventById(eventId);
-      setEvent(eventResponse.data.event);
-
-      try {
-        const registrationResponse = await registrationAPI.checkRegistration(eventId);
-        if (registrationResponse.data.isRegistered) {
-          setAlreadyRegistered(true);
-          toast.info('You are already registered for this event');
-        }
-      } catch (err) {
-        setAlreadyRegistered(false);
-      }
-    } catch (error) {
-      console.error('Error fetching event:', error);
-      toast.error('Event not found');
-      navigate('/events');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

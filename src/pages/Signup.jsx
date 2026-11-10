@@ -58,7 +58,7 @@ export default function Signup() {
     if (!formData.branch) newErrors.branch = "Please select your branch";
     if (!formData.year) newErrors.year = "Please select your academic year";
     if (!formData.password) newErrors.password = "Password is required";
-    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+    else if (formData.password.length < 8) newErrors.password = "Password must be at least 8 characters";
     if (!formData.confirmPassword) newErrors.confirmPassword = "Please confirm your password";
     else if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
 
@@ -72,13 +72,14 @@ export default function Signup() {
 
     setIsLoading(true);
 
-    const { confirmPassword, ...registrationData } = formData;
+    const registrationData = { ...formData };
+    delete registrationData.confirmPassword;
     const result = await register(registrationData);
 
     setIsLoading(false);
 
     if (result.success) {
-      toast.success("Account created successfully! Welcome to College Events.");
+      toast.success("Account created successfully! Welcome to Ayojan.");
       navigate("/");
     } else {
       toast.error(result.message || "Registration failed. Please try again.");
@@ -87,12 +88,12 @@ export default function Signup() {
   };
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-white to-indigo-50'} flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
-      <div className="max-w-md w-full">
+    <div className={`auth-page min-h-screen ${isDark ? 'auth-page-dark' : ''} flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
+      <div className="auth-panel max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-xl">
+            <div className="auth-brand-mark p-3 rounded-xl">
               <Calendar className="h-8 w-8 text-white" />
             </div>
           </div>
@@ -105,7 +106,8 @@ export default function Signup() {
         </div>
 
         {/* SignUp Form */}
-        <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-xl p-8 transition-colors duration-200`}>
+        <div className={`auth-card ${isDark ? 'auth-card-dark' : ''} rounded-xl shadow-xl p-8 transition-colors duration-200`}>
+          <div className={`auth-switch ${isDark ? 'auth-switch-dark' : ''}`}><Link to="/login">SIGN IN</Link><Link to="/signup" className="active">SIGN UP</Link></div>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* First Name */}
             <div className="relative">
@@ -119,7 +121,7 @@ export default function Signup() {
                 value={formData.firstName}
                 onChange={handleInputChange}
                 placeholder="Enter your first name"
-                className={`mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                className={`auth-field mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:border-transparent sm:text-sm ${
                   errors.firstName 
                     ? "border-red-300" 
                     : isDark
@@ -142,7 +144,7 @@ export default function Signup() {
                 value={formData.lastName}
                 onChange={handleInputChange}
                 placeholder="Enter your last name"
-                className={`mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                className={`auth-field mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:border-transparent sm:text-sm ${
                   errors.lastName 
                     ? "border-red-300" 
                     : isDark
@@ -165,7 +167,7 @@ export default function Signup() {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter your email"
-                className={`mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                className={`auth-field mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:border-transparent sm:text-sm ${
                   errors.email 
                     ? "border-red-300" 
                     : isDark
@@ -186,7 +188,7 @@ export default function Signup() {
                 name="branch"
                 value={formData.branch}
                 onChange={handleInputChange}
-                className={`mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                className={`auth-field mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:border-transparent sm:text-sm ${
                   errors.branch 
                     ? "border-red-300" 
                     : isDark
@@ -212,7 +214,7 @@ export default function Signup() {
                 name="year"
                 value={formData.year}
                 onChange={handleInputChange}
-                className={`mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                className={`auth-field mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:border-transparent sm:text-sm ${
                   errors.year 
                     ? "border-red-300" 
                     : isDark
@@ -240,7 +242,7 @@ export default function Signup() {
                 value={formData.password}
                 onChange={handleInputChange}
                 placeholder="Create a password"
-                className={`mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                className={`auth-field mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:border-transparent sm:text-sm ${
                   errors.password 
                     ? "border-red-300" 
                     : isDark
@@ -270,7 +272,7 @@ export default function Signup() {
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 placeholder="Confirm your password"
-                className={`mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                className={`auth-field mt-1 block w-full rounded-md border px-10 py-2 shadow-sm focus:border-transparent sm:text-sm ${
                   errors.confirmPassword 
                     ? "border-red-300" 
                     : isDark
@@ -292,7 +294,7 @@ export default function Signup() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="auth-submit w-full text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Creating Account..." : "Sign Up"}
             </button>
@@ -301,12 +303,13 @@ export default function Signup() {
           <div className="mt-6 text-center">
             <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
               Already have an account?{" "}
-              <Link to="/login" className="text-blue-600 hover:text-blue-500 font-medium">
+              <Link to="/login" className="auth-accent-link font-medium">
                 Sign in here
               </Link>
             </p>
           </div>
         </div>
+        <div className="mt-6 text-center"><Link to="/" className={`auth-home-link ${isDark ? 'auth-home-link-dark' : ''}`}>← Back to home</Link></div>
       </div>
     </div>
   );

@@ -1,12 +1,61 @@
-# React + Vite
+# Ayojan — College Event Management Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive React + Vite frontend for discovering college events, viewing the gallery, registering for events, managing profiles, and organizing campus activities.
 
-Currently, two official plugins are available:
+## Live deployment setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This client is a Vite static site. Configure your frontend hosting service with:
 
-## Expanding the ESLint configuration
+- **Build command:** `npm install && npm run build`
+- **Publish directory:** `dist`
+- **Node version:** 20 or newer is recommended
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Set this environment variable in the frontend hosting dashboard:
+
+```env
+VITE_API_URL=https://<your-backend-service>.onrender.com/api
+```
+
+The value must include `/api`. After changing it, rebuild and redeploy the frontend because Vite injects `VITE_*` variables at build time.
+
+## Local development
+
+```bash
+npm install
+npm run dev
+```
+
+The Vite development server normally runs at `http://localhost:5173`.
+
+For local API usage, create a `.env` file in this directory:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+Run checks before pushing:
+
+```bash
+npm run lint
+npm run build
+```
+
+## Main features
+
+- Event discovery with search, category filters, featured events, and responsive cards
+- Event registration and personal registration history
+- Login, signup, protected profile editing, and profile image uploads
+- Organizer/admin event management
+- Gallery with default campus content until admin content is available
+- Feedback and event ratings
+- Responsive mobile navigation and accessible dialogs
+
+## Backend connection requirements
+
+The backend must allow the deployed frontend origin through its `CLIENT_URL` environment variable. For example:
+
+```env
+CLIENT_URL=https://<this-frontend-domain>
+```
+
+Keep `.env` files, API secrets, and uploaded files out of Git. The repository ignores local environment files and build output.

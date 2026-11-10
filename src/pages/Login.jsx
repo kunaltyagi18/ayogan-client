@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff, Calendar } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { useToast } from "../components/Toast";
 
-export default function Login() {
+export default function Login({ adminOnly = false }) {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const { login, adminLogin } = useAuth();
   const { isDark } = useTheme();
   const toast = useToast();
 
@@ -46,8 +47,8 @@ export default function Login() {
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
     }
 
     setErrors(newErrors);
@@ -61,16 +62,17 @@ export default function Login() {
 
     setIsLoading(true);
 
-    const result = await login({
+    const result = await (adminOnly ? adminLogin : login)({
       email: formData.email,
       password: formData.password,
+      rememberMe: formData.rememberMe,
     });
 
     setIsLoading(false);
 
     if (result.success) {
       toast.success("Login successful! Welcome back.");
-      navigate("/");
+      navigate(location.state?.from || "/", { replace: true });
     } else {
       toast.error(result.message || "Login failed. Please try again.");
       setErrors({ email: result.message || "Login failed. Please try again." });
@@ -78,25 +80,26 @@ export default function Login() {
   };
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-white to-indigo-50'} flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
-      <div className="max-w-md w-full">
+    <div className={`auth-page min-h-screen ${isDark ? 'auth-page-dark' : ''} flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
+      <div className="auth-panel max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-xl">
+            <div className="auth-brand-mark p-3 rounded-xl">
               <Calendar className="h-8 w-8 text-white" />
             </div>
           </div>
           <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>
-            Welcome Back
+            {adminOnly ? 'Admin Login' : 'Welcome Back'}
           </h2>
           <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
-            Sign in to your account to continue
+            {adminOnly ? 'Sign in with your administrator account' : 'Sign in to your account to continue'}
           </p>
         </div>
 
         {/* Login Form */}
-        <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-xl p-8 transition-colors duration-200`}>
+        <div className={`auth-card ${isDark ? 'auth-card-dark' : ''} rounded-xl shadow-xl p-8 transition-colors duration-200`}>
+          {!adminOnly && <div className={`auth-switch ${isDark ? 'auth-switch-dark' : ''}`}><Link to="/login" className="active">SIGN IN</Link><Link to="/signup">SIGN UP</Link></div>}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
@@ -113,7 +116,7 @@ export default function Login() {
                   type="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  className={`auth-field w-full pl-10 pr-4 py-3 border rounded-lg focus:border-transparent transition-colors ${
                     errors.email 
                       ? "border-red-300" 
                       : isDark 
@@ -143,7 +146,7 @@ export default function Login() {
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                  className={`auth-field w-full pl-10 pr-12 py-3 border rounded-lg focus:border-transparent transition-colors ${
                     errors.password 
                       ? "border-red-300" 
                       : isDark 
@@ -177,7 +180,7 @@ export default function Login() {
                   type="checkbox"
                   checked={formData.rememberMe}
                   onChange={handleInputChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="auth-checkbox h-4 w-4 border-gray-300 rounded"
                 />
                 <label
                   htmlFor="rememberMe"
@@ -189,7 +192,7 @@ export default function Login() {
 
               <a
                 href="#"
-                className="text-sm text-blue-600 hover:text-blue-500 transition-colors"
+                className="auth-accent-link text-sm transition-colors"
               >
                 Forgot password?
               </a>
@@ -198,7 +201,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="auth-submit w-full text-white py-3 rounded-lg font-semibold hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
@@ -211,31 +214,32 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
+          {!adminOnly && <div className="mt-6 text-center">
             <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
               Don't have an account?{" "}
               <Link
                 to="/signup"
-                className="text-blue-600 hover:text-blue-500 font-medium transition-colors"
+                className="auth-accent-link font-medium transition-colors"
               >
                 Sign up here
               </Link>
             </p>
-          </div>
+          </div>}
         </div>
 
         {/* Additional Info */}
         <div className="mt-8 text-center">
           <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             By signing in, you agree to our{" "}
-            <a href="#" className="text-blue-600 hover:text-blue-500">
-              Terms of Service
-            </a>{" "}
+              <Link to="/terms" className="auth-accent-link">
+                Terms of Service
+              </Link>{" "}
             and{" "}
-            <a href="#" className="text-blue-600 hover:text-blue-500">
-              Privacy Policy
-            </a>
+              <Link to="/privacy" className="auth-accent-link">
+                Privacy Policy
+              </Link>
           </p>
+          <Link to="/" className={`auth-home-link ${isDark ? 'auth-home-link-dark' : ''}`}>← Back to home</Link>
         </div>
       </div>
     </div>

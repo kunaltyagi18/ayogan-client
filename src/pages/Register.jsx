@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTheme } from "../contexts/ThemeContext";
 import { eventAPI } from "../utils/api";
@@ -7,6 +7,9 @@ import { Upload, X } from "lucide-react";
 
 export default function Register() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editEventId = searchParams.get('edit');
+  const isEditing = Boolean(editEventId);
   const { isAuthenticated, user } = useAuth();
   const { isDark } = useTheme();
 
@@ -34,6 +37,36 @@ export default function Register() {
   const [eventImagePreview, setEventImagePreview] = useState(null);
   const [galleryImagePreview, setGalleryImagePreview] = useState(null);
 
+  React.useEffect(() => {
+    if (!editEventId) return;
+    let mounted = true;
+    eventAPI.getEventById(editEventId)
+      .then(({ data }) => {
+        if (!mounted || !data.event) return;
+        const event = data.event;
+        setFormData((previous) => ({
+          ...previous,
+          title: event.title || '',
+          description: event.description || '',
+          category: event.category || 'Academic',
+          date: event.date ? new Date(event.date).toISOString().slice(0, 10) : '',
+          time: event.time || '',
+          location: event.location || '',
+          organizer: event.organizer || previous.organizer,
+          maxAttendees: event.maxAttendees || '',
+          price: event.price ?? '0',
+          contactEmail: event.contactEmail || previous.contactEmail,
+          contactPhone: event.contactPhone || '',
+          requirements: event.requirements?.length ? event.requirements : [''],
+          tags: event.tags?.length ? event.tags : [''],
+        }));
+        setEventImagePreview(event.image || null);
+        setGalleryImagePreview(event.galleryImage || null);
+      })
+      .catch(() => setErrors({ form: 'Unable to load this event for editing.' }));
+    return () => { mounted = false; };
+  }, [editEventId]);
+
   const categories = ["Academic", "Sports", "Cultural", "Technical", "Workshop", "Social"];
 
   const validateForm = () => {
@@ -48,8 +81,8 @@ export default function Register() {
     if (!formData.maxAttendees || formData.maxAttendees < 1) newErrors.maxAttendees = "Maximum attendees must be at least 1";
     if (!formData.contactEmail) newErrors.contactEmail = "Contact email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.contactEmail)) newErrors.contactEmail = "Email is invalid";
-    if (!formData.eventImage) newErrors.eventImage = "Event page image is required";
-    if (!formData.galleryImage) newErrors.galleryImage = "Gallery image is required";
+    if (!isEditing && !formData.eventImage) newErrors.eventImage = "Event page image is required";
+    if (!isEditing && !formData.galleryImage) newErrors.galleryImage = "Gallery image is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -186,7 +219,9 @@ export default function Register() {
         formDataToSend.append("galleryImage", formData.galleryImage);
       }
 
-      const response = await eventAPI.createEvent(formDataToSend);
+      const response = isEditing
+        ? await eventAPI.updateEvent(editEventId, formDataToSend)
+        : await eventAPI.createEvent(formDataToSend);
 
       if (response.data.success) {
         setSubmitted(true);
@@ -240,7 +275,7 @@ export default function Register() {
       <div className={`max-w-4xl mx-auto ${isDark ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-8`}>
         <div className="mb-8">
           <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'} mb-2`}>
-            Create New Event
+            {isEditing ? 'Edit Event' : 'Create New Event'}
           </h1>
           <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
             Fill in the details to create an amazing event
@@ -504,7 +539,7 @@ export default function Register() {
             {/* Event Page Image */}
             <div>
               <label className={`block text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-700'} mb-2`}>
-                Event Page Image * <span className="text-xs text-gray-500">(Will appear on event details)</span>
+                Event Page Image {isEditing ? '' : '*'} <span className="text-xs text-gray-500">(Will appear on event details)</span>
               </label>
               <div className={`border-2 border-dashed ${
                 errors.eventImage ? 'border-red-500' : isDark ? 'border-gray-600' : 'border-gray-300'
@@ -550,7 +585,7 @@ export default function Register() {
             {/* Gallery Image */}
             <div>
               <label className={`block text-sm font-medium ${isDark ? 'text-gray-200' : 'text-gray-700'} mb-2`}>
-                Gallery Image * <span className="text-xs text-gray-500">(Will appear in gallery)</span>
+                Gallery Image {isEditing ? '' : '*'} <span className="text-xs text-gray-500">(Will appear in gallery)</span>
               </label>
               <div className={`border-2 border-dashed ${
                 errors.galleryImage ? 'border-red-500' : isDark ? 'border-gray-600' : 'border-gray-300'

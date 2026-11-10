@@ -7,11 +7,8 @@ export default function EventCard({ event, onClick }) {
 
   const handleRegisterClick = (e) => {
     e.stopPropagation();
-    if (event._id.startsWith('gallery-')) {
-      alert('This is a demo event from the gallery. Registration not available.');
-    } else {
-      navigate(`/register-now/${event._id}`);
-    }
+    if (event.isDefault) return;
+    navigate(`/register-now/${event._id}`);
   };
 
   return (
@@ -61,10 +58,12 @@ export default function EventCard({ event, onClick }) {
         </div>
         <div className="mt-4">
           <button
+            type="button"
+            disabled={event.isDefault}
             onClick={handleRegisterClick}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+            className={`w-full py-2 rounded-lg transition-colors duration-200 font-medium ${event.isDefault ? 'cursor-not-allowed bg-gray-200 text-gray-500' : 'bg-[#f1262d] text-white hover:bg-[#c91f2a]'}`}
           >
-            Register Now
+            {event.isDefault ? 'Registration opens soon' : 'Register Now'}
           </button>
         </div>
       </div>

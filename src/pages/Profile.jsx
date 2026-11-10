@@ -127,7 +127,7 @@ export default function Profile() {
   };
 
   return (
-    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'} py-12 transition-colors duration-200`}>
+    <div className={`min-h-screen ${isDark ? 'bg-gray-900' : 'bg-gray-50'} py-8 sm:py-10 transition-colors duration-200`}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -141,7 +141,7 @@ export default function Profile() {
 
         <div className={`${isDark ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg overflow-hidden`}>
           {/* Profile Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-12">
+          <div className="bg-gradient-to-r from-[#f1262d] to-[#a71927] px-6 py-8 sm:px-8 sm:py-10">
             <div className="flex items-center space-x-6">
               {/* Profile Picture */}
               <div className="relative">
@@ -153,14 +153,14 @@ export default function Profile() {
                       className="h-24 w-24 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="h-24 w-24 rounded-full bg-blue-100 flex items-center justify-center">
-                      <User className="h-12 w-12 text-blue-600" />
+                    <div className="h-24 w-24 rounded-full bg-red-100 flex items-center justify-center">
+                      <User className="h-12 w-12 text-[#f1262d]" />
                     </div>
                   )}
                 </div>
                 {isEditing && (
                   <label className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer hover:bg-gray-100 transition-colors">
-                    <Camera className="h-5 w-5 text-blue-600" />
+                    <Camera className="h-5 w-5 text-[#f1262d]" />
                     <input
                       type="file"
                       accept="image/*"
@@ -175,7 +175,7 @@ export default function Profile() {
                 <h2 className="text-2xl font-bold">
                   {authUser?.firstName} {authUser?.lastName}
                 </h2>
-                <p className="text-blue-100">{authUser?.email}</p>
+                <p className="text-red-100">{authUser?.email}</p>
                 <div className="mt-2 flex items-center space-x-4 text-sm">
                   <span className="bg-white/20 px-3 py-1 rounded-full">
                     {authUser?.role || 'Student'}
@@ -191,7 +191,7 @@ export default function Profile() {
           </div>
 
           {/* Profile Form */}
-          <div className="p-8">
+          <div className="p-6 sm:p-8">
             <div className="flex justify-between items-center mb-6">
               <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
                 Personal Information
@@ -199,7 +199,7 @@ export default function Profile() {
               {!isEditing ? (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center space-x-2 bg-[#f1262d] text-white px-4 py-2 rounded-lg hover:bg-[#c91f2a] transition-colors"
                 >
                   <Edit2 className="h-4 w-4" />
                   <span>Edit Profile</span>
@@ -220,7 +220,7 @@ export default function Profile() {
                   <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                    className="flex items-center space-x-2 bg-[#f1262d] text-white px-4 py-2 rounded-lg hover:bg-[#c91f2a] transition-colors disabled:opacity-50"
                   >
                     <Save className="h-4 w-4" />
                     <span>{loading ? 'Saving...' : 'Save'}</span>
@@ -246,8 +246,8 @@ export default function Profile() {
                     className={`w-full px-4 py-2 border rounded-lg ${
                       isEditing 
                         ? isDark 
-                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-blue-500' 
-                          : 'border-gray-300 focus:ring-2 focus:ring-blue-500'
+                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-[#f1262d]' 
+                          : 'border-gray-300 focus:ring-2 focus:ring-[#f1262d]'
                         : isDark 
                           ? 'bg-gray-700 border-gray-600 text-gray-400' 
                           : 'bg-gray-50 border-gray-200'
@@ -270,8 +270,8 @@ export default function Profile() {
                     className={`w-full px-4 py-2 border rounded-lg ${
                       isEditing 
                         ? isDark 
-                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-blue-500' 
-                          : 'border-gray-300 focus:ring-2 focus:ring-blue-500'
+                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-[#f1262d]' 
+                          : 'border-gray-300 focus:ring-2 focus:ring-[#f1262d]'
                         : isDark 
                           ? 'bg-gray-700 border-gray-600 text-gray-400' 
                           : 'bg-gray-50 border-gray-200'
@@ -316,8 +316,8 @@ export default function Profile() {
                     className={`w-full px-4 py-2 border rounded-lg ${
                       isEditing 
                         ? isDark 
-                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-blue-500' 
-                          : 'border-gray-300 focus:ring-2 focus:ring-blue-500'
+                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-[#f1262d]' 
+                          : 'border-gray-300 focus:ring-2 focus:ring-[#f1262d]'
                         : isDark 
                           ? 'bg-gray-700 border-gray-600 text-gray-400' 
                           : 'bg-gray-50 border-gray-200'
@@ -339,8 +339,8 @@ export default function Profile() {
                     className={`w-full px-4 py-2 border rounded-lg ${
                       isEditing 
                         ? isDark 
-                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-blue-500' 
-                          : 'border-gray-300 focus:ring-2 focus:ring-blue-500'
+                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-[#f1262d]' 
+                          : 'border-gray-300 focus:ring-2 focus:ring-[#f1262d]'
                         : isDark 
                           ? 'bg-gray-700 border-gray-600 text-gray-400' 
                           : 'bg-gray-50 border-gray-200'
@@ -362,8 +362,8 @@ export default function Profile() {
                     className={`w-full px-4 py-2 border rounded-lg ${
                       isEditing 
                         ? isDark 
-                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-blue-500' 
-                          : 'border-gray-300 focus:ring-2 focus:ring-blue-500'
+                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-[#f1262d]' 
+                          : 'border-gray-300 focus:ring-2 focus:ring-[#f1262d]'
                         : isDark 
                           ? 'bg-gray-700 border-gray-600 text-gray-400' 
                           : 'bg-gray-50 border-gray-200'
@@ -385,8 +385,8 @@ export default function Profile() {
                     className={`w-full px-4 py-2 border rounded-lg ${
                       isEditing 
                         ? isDark 
-                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-blue-500' 
-                          : 'border-gray-300 focus:ring-2 focus:ring-blue-500'
+                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-[#f1262d]' 
+                          : 'border-gray-300 focus:ring-2 focus:ring-[#f1262d]'
                         : isDark 
                           ? 'bg-gray-700 border-gray-600 text-gray-400' 
                           : 'bg-gray-50 border-gray-200'
@@ -413,8 +413,8 @@ export default function Profile() {
                     className={`w-full px-4 py-2 border rounded-lg ${
                       isEditing 
                         ? isDark 
-                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-blue-500' 
-                          : 'border-gray-300 focus:ring-2 focus:ring-blue-500'
+                          ? 'bg-gray-700 border-gray-600 text-white focus:ring-2 focus:ring-[#f1262d]' 
+                          : 'border-gray-300 focus:ring-2 focus:ring-[#f1262d]'
                         : isDark 
                           ? 'bg-gray-700 border-gray-600 text-gray-400' 
                           : 'bg-gray-50 border-gray-200'
@@ -437,7 +437,7 @@ export default function Profile() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 border`}>
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-[#f1262d]">
                   {authUser?.eventsRegistered?.length || 0}
                 </div>
                 <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -445,7 +445,7 @@ export default function Profile() {
                 </div>
               </div>
               <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 border`}>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-[#5f8e70]">
                   {authUser?.eventsAttended?.length || 0}
                 </div>
                 <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
@@ -453,7 +453,7 @@ export default function Profile() {
                 </div>
               </div>
               <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-lg p-4 border`}>
-                <div className="text-2xl font-bold text-purple-600">
+                <div className="text-2xl font-bold text-[#a71927]">
                   {authUser?.favoriteEvents?.length || 0}
                 </div>
                 <div className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>

@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Star, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { feedbackAPI } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 
-export default function EventFeedback({ eventId, eventTitle }) {
-  const { isAuthenticated, user } = useAuth();
+export default function EventFeedback({ eventId }) {
+  const { isAuthenticated } = useAuth();
   const { isDark } = useTheme();
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,12 +16,7 @@ export default function EventFeedback({ eventId, eventTitle }) {
   const [comment, setComment] = useState('');
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  useEffect(() => {
-    fetchFeedbacks();
-    checkUserFeedback();
-  }, [eventId]);
-
-  const fetchFeedbacks = async () => {
+  const fetchFeedbacks = useCallback(async () => {
     try {
       const response = await feedbackAPI.getEventFeedback(eventId);
       setFeedbacks(response.data.feedback);
@@ -30,9 +25,9 @@ export default function EventFeedback({ eventId, eventTitle }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [eventId]);
 
-  const checkUserFeedback = async () => {
+  const checkUserFeedback = useCallback(async () => {
     if (!isAuthenticated) return;
     
     try {
@@ -48,7 +43,12 @@ export default function EventFeedback({ eventId, eventTitle }) {
     } catch (error) {
       console.error('Error checking user feedback:', error);
     }
-  };
+  }, [eventId, isAuthenticated]);
+
+  useEffect(() => {
+    fetchFeedbacks();
+    checkUserFeedback();
+  }, [fetchFeedbacks, checkUserFeedback]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -72,7 +72,7 @@ export default function EventFeedback({ eventId, eventTitle }) {
     setSubmitting(true);
 
     try {
-      const response = await feedbackAPI.submitFeedback({
+      await feedbackAPI.submitFeedback({
         eventId,
         rating,
         comment
